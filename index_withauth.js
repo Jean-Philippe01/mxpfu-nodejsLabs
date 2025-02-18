@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session');
 
 const app = express();
-const PORT = 5000;
+const PORT = 5001;
 
 // Initialize session middleware with options
 app.use(session({ secret: "fingerpint", resave: true, saveUninitialized: true }));
@@ -55,5 +55,31 @@ app.post("/login", (req, res) => {
     return res.status(200).send("User successfully logged in");
 });
 
+router.get("/lastName/:lastName", (req, res) => {
+    // Extract the lastName parameter from the request URL
+    const lastName = req.params.lastName;
+    // Filter the users array to find users whose lastName matches the extracted lastName parameter
+    let filtered_lastname = users.filter((user) => user.lastName === lastName);
+    // Send the filtered_lastname array as the response to the client
+    res.send(filtered_lastname);
+});
+
+// Function to convert a date string in the format "dd-mm-yyyy" to a Date object
+function getDateFromString(strDate) {
+    let [dd, mm, yyyy] = strDate.split('-');
+    return new Date(yyyy + "/" + mm + "/" + dd);
+}
+
+// Define a route handler for GET requests to the "/sort" endpoint
+router.get("/sort", (req, res) => {
+    // Sort the users array by DOB in ascending order
+    let sorted_users = users.sort(function(a, b) {
+        let d1 = getDateFromString(a.DOB);
+        let d2 = getDateFromString(b.DOB);
+        return d1 - d2;
+    });
+    // Send the sorted_users array as the response to the client
+    res.send(sorted_users);
+});
 // Start server
 app.listen(PORT, () => console.log("Server is running at port " + PORT));
